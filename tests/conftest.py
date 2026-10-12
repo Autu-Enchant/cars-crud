@@ -7,6 +7,13 @@ from fastapi.testclient import TestClient
 from app.main import create_app
 
 
+def pytest_addoption(parser):
+    # Declared here so the option exists even for non-E2E runs such as a
+    # bare `pytest` using testpaths; e2e/conftest.py loads too late for
+    # pytest_addoption to register in that case.
+    parser.addoption("--headed", action="store_true", help="Show the E2E browser window")
+
+
 @pytest.fixture
 def database_path(tmp_path: Path) -> Path:
     return tmp_path / "test-cars.db"
