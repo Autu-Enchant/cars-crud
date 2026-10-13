@@ -23,10 +23,14 @@ def test_user_edits_car_and_change_survives_reload(page, live_server):
     expect(page).to_have_url(re.compile(r"/cars/\d+$"))
 
     page.get_by_role("link", name="Edit car").click()
+    # Wait for loadForm() to finish pre-filling the fields before typing over them;
+    # otherwise the async pre-fill can overwrite our values on a fast runner.
+    expect(page.get_by_label("Model", exact=True)).to_have_value("Civic")
     page.get_by_label("Model", exact=True).fill("Accord")
     page.get_by_label("Year", exact=True).fill("2023")
     page.get_by_role("button", name="Save changes").click()
 
+    expect(page).to_have_url(re.compile(r"/cars/\d+$"))
     expect(page.get_by_role("heading", name="Honda Accord")).to_be_visible()
     page.reload()
     expect(page.locator("#car-model")).to_have_text("Accord")
